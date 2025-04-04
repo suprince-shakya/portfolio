@@ -1,0 +1,8 @@
+version: '3.7'
+services:
+  portfolio:
+    container_name: portfolio
+    image: ghcr.io/suprince-shakya/portfolio-ghcr:latest
+    ports:
+      - 3003:3000
+    restart: on-failure
