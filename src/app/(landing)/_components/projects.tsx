@@ -76,16 +76,20 @@ export default function Projects({ projects }: { projects: IPortfolio[] }) {
 									))}
 								</div>
 								<div className="flex gap-4">
-									<Button asChild size="sm" className="gap-2">
-										<Link href={project.live_link} target="_blank">
-											<ExternalLink className="h-4 w-4" /> Live Demo
-										</Link>
-									</Button>
-									<Button asChild size="sm" variant="outline" className="gap-2">
-										<Link href={project.code_link} target="_blank">
-											<Github className="h-4 w-4" /> Code
-										</Link>
-									</Button>
+									{project.live_link && (
+										<Button asChild size="sm" className="gap-2">
+											<Link href={project.live_link} target="_blank">
+												<ExternalLink className="h-4 w-4" /> Live Demo
+											</Link>
+										</Button>
+									)}
+									{project.code_link && (
+										<Button asChild size="sm" variant="outline" className="gap-2">
+											<Link href={project.code_link} target="_blank">
+												<Github className="h-4 w-4" /> Code
+											</Link>
+										</Button>
+									)}
 								</div>
 							</CardContent>
 						</Card>
