@@ -63,7 +63,7 @@ export default function Projects({ projects }: { projects: IPortfolio[] }) {
 							className="overflow-hidden opacity-0 duration-700 delay-100 hover:shadow-lg transform hover:-translate-y-2 transition-transform"
 						>
 							<div className="relative h-72 w-full overflow-hidden">
-								<Image src={`${process.env.NEXT_PUBLIC_APP_URL}${project.image}`} alt={project.title} fill className="object-contain transition-transform duration-500 hover:scale-110" />
+								<Image src={project.image} alt={project.title} fill className="object-contain transition-transform duration-500 hover:scale-110" />
 							</div>
 							<CardContent className="p-6">
 								<h3 className="text-xl font-bold mb-2">{project.title}</h3>
