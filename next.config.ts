@@ -16,10 +16,6 @@ const nextConfig: NextConfig = {
 				protocol: 'http',
 			},
 			{
-				hostname: 'localhost:5003',
-				protocol: 'http',
-			},
-			{
 				hostname: 'suprinceshakya.com.np',
 				protocol: 'https',
 			},
