@@ -4,5 +4,5 @@ services:
     container_name: portfolio
     image: ghcr.io/suprince-shakya/portfolio-ghcr:latest
     ports:
-      - 3003:3000
+      - 3004:3000
     restart: on-failure
