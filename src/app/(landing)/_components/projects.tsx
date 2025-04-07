@@ -79,7 +79,7 @@ export default function Projects({ projects }: { projects: IPortfolio[] }) {
 									{project.live_link && (
 										<Button asChild size="sm" className="gap-2">
 											<Link href={project.live_link} target="_blank">
-												<ExternalLink className="h-4 w-4" /> Live Demo
+												<ExternalLink className="h-4 w-4" /> Link
 											</Link>
 										</Button>
 									)}

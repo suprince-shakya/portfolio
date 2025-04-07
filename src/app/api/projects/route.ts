@@ -8,7 +8,7 @@ import * as fs from 'fs';
 export const dynamic = 'force-dynamic';
 export async function GET() {
 	await dbConnect();
-	const portfolios: IPortfolio[] = await Portfolio.find();
+	const portfolios: IPortfolio[] = await Portfolio.find().sort({ createdAt: 'descending' });
 	return NextResponse.json({ data: portfolios, message: 'Projects fetched successfully' }, { status: 200 });
 }
 
@@ -64,4 +64,3 @@ const saveImage = async (file: File, folder: string) => {
 
 	return `/uploads/${folder}/${fileName}`;
 };
-
