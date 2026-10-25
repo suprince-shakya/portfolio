@@ -1,45 +1,71 @@
-import { verifyToken } from '@/lib/auth';
+import { getUserId } from '@/lib/auth';
 import dbConnect from '@/lib/dbConnect';
 import { NextRequest, NextResponse } from 'next/server';
-import Message, { IMessage } from '@/models/Message';
+import Message from '@/models/Message';
+import { serializeMessage } from '@/lib/serializers';
+import { messageSchema } from '@/lib/validation';
+import { getClientIp, rateLimit } from '@/lib/rate-limit';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
-	await dbConnect();
-	const authHeader = req.headers.get('authorization');
-	if (!authHeader) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+	const userId = getUserId(req);
+	if (!userId) {
+		return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+	}
 
 	try {
-		verifyToken(authHeader.split(' ')[1]);
-		const messages: IMessage[] = await Message.find();
-		return NextResponse.json({ data: messages, message: 'Messages fetched successfully' }, { status: 200 });
+		await dbConnect();
+		const messages = await Message.find().sort({ createdAt: -1 });
+		return NextResponse.json(
+			{ data: messages.map(serializeMessage), message: 'Messages fetched successfully' },
+			{ status: 200 }
+		);
 	} catch (error) {
-		console.error('Error:', error);
+		console.error('Error fetching messages:', error);
 		return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
 	}
 }
+
 export async function POST(req: NextRequest) {
-	await dbConnect();
-	const formData = await req.formData();
+	const limit = rateLimit(`message:${getClientIp(req)}`, 5, 10 * 60_000);
+	if (!limit.ok) {
+		return NextResponse.json(
+			{ error: 'Too many messages sent. Please try again later.' },
+			{ status: 429, headers: { 'Retry-After': String(limit.retryAfterSeconds) } }
+		);
+	}
+
+	let formData: FormData;
 	try {
-		// ✅ Get form data fields
-		const name = formData.get('name') as string;
-		const email = formData.get('email') as string;
-		const subject = formData.get('subject') as string;
-		const message = formData.get('message') as string;
+		formData = await req.formData();
+	} catch {
+		return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
+	}
 
-		// ✅ Save to MongoDB
-		const newMessage = await Message.create({
-			name,
-			email,
-			subject,
-			message,
-		});
+	const parsed = messageSchema.safeParse({
+		name: formData.get('name'),
+		email: formData.get('email'),
+		subject: formData.get('subject'),
+		message: formData.get('message'),
+	});
 
-		return NextResponse.json({ data: newMessage, message: 'Message submitted successfully' }, { status: 201 });
+	if (!parsed.success) {
+		return NextResponse.json(
+			{ error: 'Invalid input', issues: parsed.error.flatten().fieldErrors },
+			{ status: 400 }
+		);
+	}
+
+	try {
+		await dbConnect();
+		const newMessage = await Message.create(parsed.data);
+		return NextResponse.json(
+			{ data: serializeMessage(newMessage), message: 'Message submitted successfully' },
+			{ status: 201 }
+		);
 	} catch (error) {
-		console.error('Error:', error);
+		console.error('Error saving message:', error);
 		return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
 	}
 }

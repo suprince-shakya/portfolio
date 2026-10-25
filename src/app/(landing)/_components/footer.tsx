@@ -1,48 +1,38 @@
-import { Facebook, Github, Linkedin, Mail } from "lucide-react";
-import Link from "next/link";
+import Link from 'next/link';
 
-export default function Footer() {
-  return (
-    <footer className="bg-muted py-6">
-      <div className="container mx-auto">
-        <div className="flex gap-4 justify-center items-center">
-          <Link
-            aria-label="GitHub"
-            href={`https://github.com/suprince-shakya`}
-            target="_blank"
-          >
-            <Github className="h-5 w-5" />
-          </Link>
-          <Link
-            aria-label="LinkedIn"
-            href={`https://www.linkedin.com/in/suprince-shakya/`}
-            target="_blank"
-          >
-            <Linkedin className="h-5 w-5" />
-          </Link>
-          <Link
-            aria-label="Facebook"
-            href={`https://www.facebook.com/profile.php?id=100079720681304`}
-            target="_blank"
-          >
-            <Facebook className="h-5 w-5" />
-          </Link>
-          <Link
-            aria-label="Email"
-            href={`mailto:suprincezzz@gmail.com`}
-            target="_blank"
-          >
-            <Mail className="h-5 w-5" />
-          </Link>
-        </div>
+import type { ProfileDTO } from '@/lib/serializers';
 
-        <div className="border-t border-border text-center my-2 text-sm text-muted-foreground">
-          <p>
-            &copy; {new Date().getFullYear()} Suprince Shakya. All rights
-            reserved.
-          </p>
-        </div>
-      </div>
-    </footer>
-  );
+const links = [
+	{ href: '#about', label: 'About' },
+	{ href: '#experience', label: 'Experience' },
+	{ href: '#projects', label: 'Projects' },
+	{ href: '#stack', label: 'Stack' },
+	{ href: '#contact', label: 'Contact' },
+];
+
+interface FooterProps {
+	profile: ProfileDTO;
+}
+
+export default function Footer({ profile }: FooterProps) {
+	return (
+		<footer>
+			<div className="container flex flex-col gap-3 py-8 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+				<p>
+					&copy; {new Date().getFullYear()} {profile.name}
+				</p>
+
+				<nav className="flex flex-wrap gap-x-5 gap-y-2" aria-label="Footer">
+					{links.map((link) => (
+						<Link key={link.href} href={link.href} className="transition-colors hover:text-foreground">
+							{link.label}
+						</Link>
+					))}
+					<a href={`mailto:${profile.email}`} className="transition-colors hover:text-foreground">
+						Email
+					</a>
+				</nav>
+			</div>
+		</footer>
+	);
 }

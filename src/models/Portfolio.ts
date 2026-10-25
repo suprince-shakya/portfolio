@@ -8,6 +8,8 @@ export interface IPortfolio extends Document {
 	code_link: string;
 	image: string;
 	gallery: string[];
+	createdAt?: Date;
+	updatedAt?: Date;
 }
 
 const PortfolioSchema: Schema<IPortfolio> = new mongoose.Schema(

@@ -4,3 +4,8 @@ Dockerfile
 docker-compose*
 .next
 .git
+.env*
+postman
+.postman
+public/uploads
+npm-debug.log*

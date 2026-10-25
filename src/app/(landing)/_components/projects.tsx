@@ -1,99 +1,103 @@
-'use client';
-
-import { useEffect, useRef } from 'react';
-import { ExternalLink, Github } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { IPortfolio } from '@/models/Portfolio';
+import type { ProjectDTO } from '@/lib/serializers';
 
-export default function Projects({ projects }: { projects: IPortfolio[] }) {
-	const sectionRef = useRef<HTMLElement>(null);
-	const projectRefs = useRef<(HTMLDivElement | null)[]>([]);
+interface ProjectsProps {
+	projects: ProjectDTO[];
+	github: string;
+}
 
-	useEffect(() => {
-		const observer = new IntersectionObserver(
-			(entries) => {
-				entries.forEach((entry) => {
-					if (entry.isIntersecting) {
-						entry.target.classList.add('animate-fade-in');
-					}
-				});
-			},
-			{ threshold: 0.1 }
-		);
-
-		if (sectionRef.current) {
-			observer.observe(sectionRef.current);
-		}
-
-		projectRefs.current.forEach((item) => {
-			if (item) observer.observe(item);
-		});
-
-		return () => {
-			if (sectionRef.current) {
-				observer.unobserve(sectionRef.current);
-			}
-			projectRefs.current.forEach((item) => {
-				if (item) observer.unobserve(item);
-			});
-		};
-	}, []);
-
+export default function Projects({ projects, github }: ProjectsProps) {
 	return (
-		<section ref={sectionRef} className="py-20 opacity-0 transition-opacity duration-1000 ease-in-out">
-			<div className="container mx-auto">
-				<div className="text-center mb-16">
-					<h2 className="text-3xl font-bold mb-4">My Projects</h2>
-					<div className="w-20 h-1 bg-primary mx-auto mb-6"></div>
-					<p className="text-muted-foreground max-w-2xl mx-auto">
-						Here are some of my recent projects. Each project is a unique piece of development that showcases my skills and passion.
-					</p>
-				</div>
+		<section className="border-b border-border/80">
+			<div className="container py-16 sm:py-20">
+				<div className="grid gap-8 md:grid-cols-[9rem_1fr] md:gap-14">
+					<h2 className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground md:sticky md:top-24 md:self-start">
+						<span className="text-foreground">03</span> / Projects
+					</h2>
 
-				<div className="grid md:grid-cols-3 gap-8">
-					{projects.map((project, index) => (
-						<Card
-							key={index}
-							ref={(el) => (projectRefs.current[index] = el) as any}
-							className="overflow-hidden opacity-0 duration-700 delay-100 hover:shadow-lg transform hover:-translate-y-2 transition-transform"
-						>
-							<div className="relative h-72 w-full overflow-hidden">
-								<Image src={project.image} alt={project.title} fill className="object-contain transition-transform duration-500 hover:scale-110" />
-							</div>
-							<CardContent className="p-6">
-								<h3 className="text-xl font-bold mb-2">{project.title}</h3>
-								<p className="text-muted-foreground mb-4">{project.summary}</p>
-								<div className="flex flex-wrap gap-2 mb-6">
-									{project.stacks.map((tech, techIndex) => (
-										<Badge key={techIndex} variant="secondary">
-											{tech}
-										</Badge>
-									))}
-								</div>
-								<div className="flex gap-4">
-									{project.live_link && (
-										<Button asChild size="sm" className="gap-2">
-											<Link href={project.live_link} target="_blank">
-												<ExternalLink className="h-4 w-4" /> Link
-											</Link>
-										</Button>
-									)}
-									{project.code_link && (
-										<Button asChild size="sm" variant="outline" className="gap-2">
-											<Link href={project.code_link} target="_blank">
-												<Github className="h-4 w-4" /> Code
-											</Link>
-										</Button>
-									)}
-								</div>
-							</CardContent>
-						</Card>
-					))}
+					<div>
+						{projects.length === 0 ? (
+							<p className="max-w-2xl text-[15px] leading-7 text-muted-foreground">
+								I&apos;m writing up a few recent projects.
+								{github && (
+									<>
+										{' '}
+										In the meantime, most of my public work is on{' '}
+										<a
+											href={github}
+											target="_blank"
+											rel="noopener noreferrer"
+											className="font-medium text-foreground underline decoration-border underline-offset-4 transition-colors hover:decoration-foreground"
+										>
+											GitHub
+										</a>
+										.
+									</>
+								)}
+							</p>
+						) : (
+							<ul className="border-t border-border/80">
+								{projects.map((project) => (
+									<li key={project.id} className="border-b border-border/80">
+										<article className="grid gap-4 py-6 sm:grid-cols-[1fr_auto] sm:items-start">
+											<div className="flex gap-4">
+												{project.image && (
+													<div className="relative hidden h-16 w-24 shrink-0 overflow-hidden rounded border border-border sm:block">
+														<Image
+															src={project.image}
+															alt={project.title}
+															fill
+															sizes="96px"
+															className="object-cover grayscale transition duration-300 hover:grayscale-0"
+														/>
+													</div>
+												)}
+
+												<div>
+													<h3 className="text-[15px] font-medium">{project.title}</h3>
+													<p className="mt-1 max-w-xl text-sm leading-6 text-muted-foreground">{project.summary}</p>
+													{project.stacks.length > 0 && (
+														<p className="mt-2 font-mono text-[11px] text-muted-foreground/80">{project.stacks.join(' · ')}</p>
+													)}
+												</div>
+											</div>
+
+											<div className="flex items-center gap-5 text-sm sm:justify-end sm:pt-0.5">
+												{project.live_link && (
+													<Link
+														href={project.live_link}
+														target="_blank"
+														rel="noopener noreferrer"
+														className="inline-flex items-center gap-1 font-medium underline decoration-border underline-offset-4 transition-colors hover:decoration-foreground"
+													>
+														Live
+														<ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
+													</Link>
+												)}
+												{project.code_link && (
+													<Link
+														href={project.code_link}
+														target="_blank"
+														rel="noopener noreferrer"
+														className="inline-flex items-center gap-1 font-medium underline decoration-border underline-offset-4 transition-colors hover:decoration-foreground"
+													>
+														Code
+														<ArrowUpRight className="h-3.5 w-3.5" aria-hidden />
+													</Link>
+												)}
+												{!project.live_link && !project.code_link && (
+													<span className="font-mono text-[11px] text-muted-foreground">Private</span>
+												)}
+											</div>
+										</article>
+									</li>
+								))}
+							</ul>
+						)}
+					</div>
 				</div>
 			</div>
 		</section>

@@ -1,0 +1,82 @@
+{
+	"profile": {
+		"name": "Suprince Shakya",
+		"role": "Full-stack engineer",
+		"bio": "I'm a full-stack developer in Lalitpur, Nepal. I work at Swivt Technology, where I build web products with Next.js, TypeScript, Node.js, and PostgreSQL. Before that I worked at Gurzu on backend services and Shopify apps.\n\nMost of my time goes into the parts users don't see: data modeling, API design, auth, deployments, and keeping the interface fast. I also build mobile apps with React Native.",
+		"currently": "Building full-stack features at Swivt Technology. Lately that means Next.js, Node.js, MongoDB, and a lot of time in the browser profiler.",
+		"photo": "/pic.jpg",
+		"location": "Lalitpur, Nepal",
+		"timezone": "UTC+5:45",
+		"workingSince": "2016",
+		"email": "suprincezzz@gmail.com",
+		"github": "https://github.com/suprince-shakya",
+		"linkedin": "https://www.linkedin.com/in/suprince-shakya/",
+		"cv": "/suprince-shakya-cv.pdf",
+		"facebook": "https://www.facebook.com/profile.php?id=100079720681304"
+	},
+	"about": {
+		"headline": "I like software that is small, fast, and easy to change.",
+		"paragraphs": [
+			"I started out building Node.js services for IoT devices at Real Time Solutions. Since then I've worked on backend services, Shopify apps, dashboards, and product teams at Gurzu and Swivt. I've been doing this long enough to know that most of the job is reading code, asking better questions, and keeping things simple.",
+			"I'm most useful on teams that need someone to move between the database, the API, and the interface without losing the thread. I care about clear naming, small diffs, and leaving code easier to work with than I found it."
+		],
+		"facts": [
+			{ "label": "Focus", "value": "Full-stack product work, APIs, and front-end performance" },
+			{ "label": "Education", "value": "B.Sc. Computer Science, 2012–2016" },
+			{ "label": "Based in", "value": "Lalitpur, Nepal" },
+			{ "label": "Outside work", "value": "Sci-fi, games, and sports" }
+		]
+	},
+	"experiences": [
+		{
+			"period": "2023 — Present",
+			"title": "Full Stack Developer",
+			"company": "Swivt Technology",
+			"summary": "Full-stack product work across web and mobile.",
+			"bullets": [
+				"Build and ship features end to end, from database schema and API design to the interface.",
+				"Work with product and design to scope work, review code, and keep releases small."
+			],
+			"stack": ["TypeScript", "Next.js", "Node.js", "MongoDB"]
+		},
+		{
+			"period": "2021 — 2023",
+			"title": "Software Engineer",
+			"company": "Gurzu",
+			"summary": "Backend services and Shopify apps for client projects.",
+			"bullets": [
+				"Built backend services on AWS for client products and internal tooling.",
+				"Developed Shopify apps and integrations covering storefront and admin workflows."
+			],
+			"stack": ["Node.js", "AWS", "Shopify", "PostgreSQL"]
+		},
+		{
+			"period": "2019 — 2021",
+			"title": "Freelance Web & Mobile Developer",
+			"company": "Independent",
+			"summary": "Independent web and mobile work for small businesses.",
+			"bullets": [
+				"Delivered web and mobile apps, owning requirements, implementation, and deployment.",
+				"Built REST APIs and admin dashboards for e-commerce and booking flows."
+			],
+			"stack": ["React", "React Native", "Node.js", "MongoDB"]
+		},
+		{
+			"period": "2016 — 2019",
+			"title": "Software Programmer",
+			"company": "Real Time Solutions",
+			"summary": "Node.js services for IoT devices.",
+			"bullets": [
+				"Built microservices that ingested and processed data from Raspberry Pi devices.",
+				"Maintained real-time dashboards and deployment scripts for field installations."
+			],
+			"stack": ["Node.js", "Raspberry Pi", "MongoDB"]
+		}
+	],
+	"stacks": [
+		{ "label": "Languages", "items": ["TypeScript", "JavaScript", "SQL"] },
+		{ "label": "Front end", "items": ["React", "Next.js", "React Native", "Tailwind CSS"] },
+		{ "label": "Back end", "items": ["Node.js", "Express", "NestJS", "GraphQL", "REST"] },
+		{ "label": "Data & infra", "items": ["PostgreSQL", "MongoDB", "MySQL", "Redis", "Docker", "AWS"] }
+	]
+}

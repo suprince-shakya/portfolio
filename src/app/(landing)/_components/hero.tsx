@@ -1,94 +1,102 @@
-'use client';
-
-import { useEffect, useState } from 'react';
-import { ArrowDown, Github, Linkedin, Mail, Facebook } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import Image from 'next/image';
 
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+import type { ProfileDTO } from '@/lib/serializers';
 
-export default function Hero({ contactRef, aboutRef }: { contactRef: React.RefObject<HTMLDivElement>; aboutRef: React.RefObject<HTMLDivElement> }) {
-	const [text, setText] = useState('');
-	const [isDeleting, setIsDeleting] = useState(false);
-	const [loopNum, setLoopNum] = useState(0);
-	const [typingSpeed, setTypingSpeed] = useState(150);
+interface HeroProps {
+	profile: ProfileDTO;
+}
 
-	const titles = ['Full Stack Developer', 'Mobile App Developer', 'Software Engineer'];
+export default function Hero({ profile }: HeroProps) {
+	const links: { href: string; label: string; external: boolean }[] = [
+		{ href: `mailto:${profile.email}`, label: 'Email', external: false },
+	];
 
-	const scrollToSection = (ref: React.RefObject<HTMLDivElement>) => {
-		if (ref.current) {
-			ref.current.scrollIntoView({ behavior: 'smooth' });
-		}
-	};
+	if (profile.github) links.push({ href: profile.github, label: 'GitHub', external: true });
+	if (profile.linkedin) links.push({ href: profile.linkedin, label: 'LinkedIn', external: true });
+	if (profile.cv) links.push({ href: profile.cv, label: 'CV', external: true });
 
-	useEffect(() => {
-		const handleTyping = () => {
-			const i = loopNum % titles.length;
-			const fullText = titles[i];
+	const paragraphs = profile.bio
+		.split(/\n\s*\n/)
+		.map((paragraph) => paragraph.trim())
+		.filter(Boolean);
 
-			setText(isDeleting ? fullText.substring(0, text.length - 1) : fullText.substring(0, text.length + 1));
-
-			setTypingSpeed(isDeleting ? 50 : 40);
-
-			if (!isDeleting && text === fullText) {
-				setTimeout(() => setIsDeleting(true), 1000);
-			} else if (isDeleting && text === '') {
-				setIsDeleting(false);
-				setLoopNum(loopNum + 1);
-			}
-		};
-
-		const timer = setTimeout(handleTyping, typingSpeed);
-		return () => clearTimeout(timer);
-	}, [text, isDeleting, loopNum, typingSpeed, titles]);
+	const initials = profile.name
+		.split(' ')
+		.map((part) => part[0])
+		.join('')
+		.slice(0, 2)
+		.toUpperCase();
 
 	return (
-		<section className="min-h-screen flex flex-col justify-center pt-16 pb-8 relative overflow-hidden">
-			<div className="absolute inset-0 bg-grid-pattern-light dark:bg-grid-pattern-dark opacity-5 z-0"></div>
-			<div className="grid lg:grid-cols-2 gap-8 items-center relative z-10">
-				<div className="space-y-6 text-center lg:text-left">
-					<h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight">
-						Hi, I&apos;m <span className="text-primary">Suprince</span>
-					</h1>
-					<h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold min-h-[40px]">
-						<span className="text-primary">{text}</span>
-						<span className="animate-blink">|</span>
-					</h2>
-					<p className="text-muted-foreground text-lg max-w-xl mx-auto lg:mx-0">
-						I build fast, good-looking websites and apps that work great on any device. I focus on making things easy to use, quick to load, and accessible to everyone. Got a cool
-						idea? Let&apos;s bring it to life together.
-					</p>
-					<div className="flex flex-wrap gap-4 justify-center lg:justify-start">
-						<Button size="lg" className="gap-2" onClick={() => scrollToSection(contactRef)}>
-							<Mail className="h-4 w-4" /> Contact Me
-						</Button>
+		<section id="home" className="border-b border-border/80">
+			<div className="container py-16 sm:py-20 lg:py-24">
+				<div className="grid gap-12 md:grid-cols-[minmax(0,1fr)_13rem] md:gap-16">
+					<div>
+						<p className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">{profile.role}</p>
 
-						<Link className="flex items-center border px-4 rounded-sm text-sm" href={`${process.env.NEXT_PUBLIC_APP_URL}/suprince-shakya-cv.pdf`} target="_blank">
-							Download CV
-						</Link>
+						<h1 className="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">{profile.name}</h1>
+
+						<div className="mt-6 max-w-2xl space-y-4 text-[15px] leading-7 text-muted-foreground">
+							{paragraphs.map((paragraph) => (
+								<p key={paragraph}>{paragraph}</p>
+							))}
+						</div>
+
+						<div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
+							{links.map((link) => (
+								<a
+									key={link.label}
+									href={link.href}
+									target={link.external ? '_blank' : undefined}
+									rel={link.external ? 'noopener noreferrer' : undefined}
+									className="inline-flex items-center gap-1 font-medium underline decoration-border underline-offset-4 transition-colors hover:decoration-foreground"
+								>
+									{link.label}
+									{link.external && <ArrowUpRight className="h-3.5 w-3.5" aria-hidden />}
+								</a>
+							))}
+						</div>
+
+						{profile.currently && (
+							<div className="mt-10 border-t border-border/80 pt-5">
+								<p className="font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Currently</p>
+								<p className="mt-2 max-w-2xl text-sm leading-6">{profile.currently}</p>
+							</div>
+						)}
 					</div>
-					<div className="flex gap-4 justify-center lg:justify-start pt-4 items-center">
-						<Link aria-label="GitHub" href={`https://github.com/suprince-shakya`} target="_blank">
-							<Github className="h-5 w-5" />
-						</Link>
-						<Link aria-label="GitHub" href={`https://www.linkedin.com/in/suprince-shakya/`} target="_blank">
-							<Linkedin className="h-5 w-5" />
-						</Link>
-						<Link aria-label="GitHub" href={`https://www.facebook.com/profile.php?id=100079720681304`} target="_blank">
-							<Facebook className="h-5 w-5" />
-						</Link>
+
+					<div className="flex items-start gap-6 md:flex-col md:gap-8">
+						{profile.photo ? (
+							<Image
+								src={profile.photo}
+								alt={profile.name}
+								width={160}
+								height={160}
+								priority
+								className="h-24 w-24 rounded-md border border-border object-cover grayscale md:h-40 md:w-40"
+							/>
+						) : (
+							<div className="flex h-24 w-24 items-center justify-center rounded-md border border-border bg-muted font-mono text-2xl text-muted-foreground md:h-40 md:w-40">
+								{initials}
+							</div>
+						)}
+						<dl className="grid flex-1 grid-cols-2 gap-x-6 gap-y-4 font-mono text-[11px] md:grid-cols-1">
+							<div>
+								<dt className="uppercase tracking-[0.14em] text-muted-foreground">Based in</dt>
+								<dd className="mt-1 text-foreground">{profile.location}</dd>
+							</div>
+							<div>
+								<dt className="uppercase tracking-[0.14em] text-muted-foreground">Timezone</dt>
+								<dd className="mt-1 text-foreground">{profile.timezone}</dd>
+							</div>
+							<div>
+								<dt className="uppercase tracking-[0.14em] text-muted-foreground">Working since</dt>
+								<dd className="mt-1 text-foreground">{profile.workingSince}</dd>
+							</div>
+						</dl>
 					</div>
 				</div>
-				<div className="flex justify-center">
-					<div className="relative w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 rounded-full border-4 border-primary/20 overflow-hidden animate-float">
-						<Image src="/profile.png" alt="John Doe" fill className="object-cover" priority />
-					</div>
-				</div>
-			</div>
-			<div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-				<Button variant="ghost" size="icon" aria-label="Scroll down" onClick={() => scrollToSection(aboutRef)}>
-					<ArrowDown className="h-6 w-6" />
-				</Button>
 			</div>
 		</section>
 	);
