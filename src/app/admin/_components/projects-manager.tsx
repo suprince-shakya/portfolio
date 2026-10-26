@@ -4,7 +4,7 @@ import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ExternalLink, Github, Plus, Trash2 } from 'lucide-react';
+import { ExternalLink, Github, Pencil, Plus, Trash2 } from 'lucide-react';
 import type { ProjectDTO } from '@/lib/serializers';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -19,10 +19,11 @@ interface ProjectsManagerProps {
 
 export default function ProjectsManager({ projects, loadError = false }: ProjectsManagerProps) {
 	const router = useRouter();
-	const formRef = useRef<HTMLFormElement>(null);
+	const formRef = useRef<HTMLDivElement>(null);
 	const imageInputRef = useRef<HTMLInputElement>(null);
 	const galleryInputRef = useRef<HTMLInputElement>(null);
 
+	const [editingId, setEditingId] = useState<string | null>(null);
 	const [title, setTitle] = useState('');
 	const [summary, setSummary] = useState('');
 	const [stacks, setStacks] = useState('');
@@ -30,25 +31,47 @@ export default function ProjectsManager({ projects, loadError = false }: Project
 	const [codeLink, setCodeLink] = useState('');
 	const [image, setImage] = useState<File | null>(null);
 	const [gallery, setGallery] = useState<File[]>([]);
+	const [removeImage, setRemoveImage] = useState(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [deletingId, setDeletingId] = useState<string | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [success, setSuccess] = useState<string | null>(null);
 
+	const editingProject = editingId ? projects.find((project) => project.id === editingId) ?? null : null;
+
+	function clearFileInputs() {
+		setImage(null);
+		setGallery([]);
+		if (imageInputRef.current) imageInputRef.current.value = '';
+		if (galleryInputRef.current) galleryInputRef.current.value = '';
+	}
+
 	function resetForm() {
+		setEditingId(null);
 		setTitle('');
 		setSummary('');
 		setStacks('');
 		setLiveLink('');
 		setCodeLink('');
-		setImage(null);
-		setGallery([]);
-		formRef.current?.reset();
-		if (imageInputRef.current) imageInputRef.current.value = '';
-		if (galleryInputRef.current) galleryInputRef.current.value = '';
+		setRemoveImage(false);
+		clearFileInputs();
 	}
 
-	async function onCreate(event: React.FormEvent<HTMLFormElement>) {
+	function startEdit(project: ProjectDTO) {
+		setEditingId(project.id);
+		setTitle(project.title);
+		setSummary(project.summary);
+		setStacks(project.stacks.join(', '));
+		setLiveLink(project.live_link);
+		setCodeLink(project.code_link);
+		setRemoveImage(false);
+		clearFileInputs();
+		setError(null);
+		setSuccess(null);
+		formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+	}
+
+	async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault();
 		setIsSubmitting(true);
 		setError(null);
@@ -66,20 +89,28 @@ export default function ProjectsManager({ projects, loadError = false }: Project
 		formData.append('code_link', codeLink);
 		if (image) formData.append('image', image);
 		gallery.forEach((file) => formData.append('gallery', file));
+		if (editingId && removeImage && !image) formData.append('remove_image', 'true');
 
 		try {
-			const response = await fetch('/api/projects', { method: 'POST', body: formData });
+			const response = await fetch(editingId ? `/api/projects/${editingId}` : '/api/projects', {
+				method: editingId ? 'PUT' : 'POST',
+				body: formData,
+			});
 			const data = await response.json().catch(() => ({}));
 
 			if (!response.ok) {
-				throw new Error(data.error || 'Could not create the project');
+				throw new Error(data.error || `Could not ${editingId ? 'update' : 'create'} the project`);
 			}
 
 			resetForm();
-			setSuccess('Project created successfully.');
+			setSuccess(editingId ? 'Project updated successfully.' : 'Project created successfully.');
 			router.refresh();
 		} catch (createError) {
-			setError(createError instanceof Error ? createError.message : 'Could not create the project');
+			setError(
+				createError instanceof Error
+					? createError.message
+					: `Could not ${editingId ? 'update' : 'create'} the project`
+			);
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -100,6 +131,7 @@ export default function ProjectsManager({ projects, loadError = false }: Project
 				throw new Error(data.error || 'Could not delete the project');
 			}
 
+			if (editingId === project.id) resetForm();
 			setSuccess('Project deleted.');
 			router.refresh();
 		} catch (deleteError) {
@@ -114,7 +146,7 @@ export default function ProjectsManager({ projects, loadError = false }: Project
 			<div className="flex flex-wrap items-end justify-between gap-4">
 				<div>
 					<h1 className="text-3xl font-bold tracking-tight">Projects</h1>
-					<p className="text-muted-foreground">Add and remove projects shown on the portfolio.</p>
+					<p className="text-muted-foreground">Add, edit, and remove projects shown on the portfolio.</p>
 				</div>
 			</div>
 
@@ -130,15 +162,20 @@ export default function ProjectsManager({ projects, loadError = false }: Project
 			)}
 			{success && <p className="rounded-md bg-primary/10 px-4 py-3 text-sm text-primary">{success}</p>}
 
-			<Card>
+			<Card ref={formRef}>
 				<CardHeader>
 					<CardTitle className="flex items-center gap-2">
-						<Plus className="h-5 w-5" /> New project
+						{editingId ? <Pencil className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
+						{editingId ? 'Edit project' : 'New project'}
 					</CardTitle>
-					<CardDescription>Upload a cover image and up to 10 gallery images (max 5MB each).</CardDescription>
+					<CardDescription>
+						{editingId
+							? 'Update the project details. Leave the file inputs empty to keep the current images.'
+							: 'Upload a cover image and up to 10 gallery images (max 5MB each).'}
+					</CardDescription>
 				</CardHeader>
 				<CardContent>
-					<form ref={formRef} onSubmit={onCreate} className="space-y-4">
+					<form onSubmit={onSubmit} className="space-y-4">
 						<div className="grid gap-4 md:grid-cols-2">
 							<div className="space-y-2">
 								<Label htmlFor="title">Title</Label>
@@ -200,9 +237,24 @@ export default function ProjectsManager({ projects, loadError = false }: Project
 									accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
 									onChange={(event) => setImage(event.target.files?.[0] ?? null)}
 								/>
+								{editingProject?.image && !image && (
+									<div className="flex items-center gap-3">
+										<div className="relative h-16 w-24 overflow-hidden rounded border border-border">
+											<Image src={editingProject.image} alt={editingProject.title} fill sizes="96px" className="object-cover" />
+										</div>
+										<label className="flex items-center gap-2 text-sm text-muted-foreground">
+											<input
+												type="checkbox"
+												checked={removeImage}
+												onChange={(event) => setRemoveImage(event.target.checked)}
+											/>
+											Remove cover
+										</label>
+									</div>
+								)}
 							</div>
 							<div className="space-y-2">
-								<Label htmlFor="gallery">Gallery images</Label>
+								<Label htmlFor="gallery">Gallery images{editingId ? ' (adds to existing)' : ''}</Label>
 								<Input
 									id="gallery"
 									ref={galleryInputRef}
@@ -214,9 +266,16 @@ export default function ProjectsManager({ projects, loadError = false }: Project
 							</div>
 						</div>
 
-						<Button type="submit" disabled={isSubmitting}>
-							{isSubmitting ? 'Creating...' : 'Create project'}
-						</Button>
+						<div className="flex flex-wrap gap-2">
+							<Button type="submit" disabled={isSubmitting}>
+								{isSubmitting ? 'Saving...' : editingId ? 'Update project' : 'Create project'}
+							</Button>
+							{editingId && (
+								<Button type="button" variant="outline" onClick={resetForm} disabled={isSubmitting}>
+									Cancel
+								</Button>
+							)}
+						</div>
 					</form>
 				</CardContent>
 			</Card>
@@ -266,10 +325,12 @@ export default function ProjectsManager({ projects, loadError = false }: Project
 												</Link>
 											</Button>
 										)}
+										<Button variant="outline" size="sm" className="ml-auto" onClick={() => startEdit(project)}>
+											<Pencil className="h-4 w-4" /> Edit
+										</Button>
 										<Button
 											variant="destructive"
 											size="sm"
-											className="ml-auto"
 											disabled={deletingId === project.id}
 											onClick={() => onDelete(project)}
 										>

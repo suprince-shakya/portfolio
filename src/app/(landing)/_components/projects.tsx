@@ -1,8 +1,9 @@
-import { ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight, Images } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
 import type { ProjectDTO } from '@/lib/serializers';
+import GalleryCarousel from './gallery-carousel';
 
 interface ProjectsProps {
 	projects: ProjectDTO[];
@@ -40,21 +41,35 @@ export default function Projects({ projects, github }: ProjectsProps) {
 							</p>
 						) : (
 							<ul className="border-t border-border/80">
-								{projects.map((project) => (
+								{projects.map((project) => {
+									const galleryImages = project.gallery ?? [];
+
+									return (
 									<li key={project.id} className="border-b border-border/80">
 										<article className="grid gap-4 py-6 sm:grid-cols-[1fr_auto] sm:items-start">
 											<div className="flex gap-4">
-												{project.image && (
-													<div className="relative hidden h-16 w-24 shrink-0 overflow-hidden rounded border border-border sm:block">
-														<Image
-															src={project.image}
-															alt={project.title}
-															fill
-															sizes="96px"
-															className="object-cover grayscale transition duration-300 hover:grayscale-0"
-														/>
-													</div>
-												)}
+												{project.image &&
+													(galleryImages.length > 0 ? (
+														<GalleryCarousel title={project.title} images={galleryImages}>
+															<button
+																type="button"
+																aria-label={`Open ${project.title} gallery`}
+																className="relative hidden h-16 w-24 shrink-0 cursor-zoom-in overflow-hidden rounded border border-border sm:block"
+															>
+																<Image
+																	src={project.image}
+																	alt={project.title}
+																	fill
+																	sizes="96px"
+																	className="object-cover"
+																/>
+															</button>
+														</GalleryCarousel>
+													) : (
+														<div className="relative hidden h-16 w-24 shrink-0 overflow-hidden rounded border border-border sm:block">
+															<Image src={project.image} alt={project.title} fill sizes="96px" className="object-cover" />
+														</div>
+													))}
 
 												<div>
 													<h3 className="text-[15px] font-medium">{project.title}</h3>
@@ -66,6 +81,17 @@ export default function Projects({ projects, github }: ProjectsProps) {
 											</div>
 
 											<div className="flex items-center gap-5 text-sm sm:justify-end sm:pt-0.5">
+												{galleryImages.length > 0 && (
+													<GalleryCarousel title={project.title} images={galleryImages}>
+														<button
+															type="button"
+															className="inline-flex cursor-zoom-in items-center gap-1 font-medium underline decoration-border underline-offset-4 transition-colors hover:decoration-foreground"
+														>
+															<Images className="h-3.5 w-3.5" aria-hidden />
+															Gallery
+														</button>
+													</GalleryCarousel>
+												)}
 												{project.live_link && (
 													<Link
 														href={project.live_link}
@@ -94,7 +120,8 @@ export default function Projects({ projects, github }: ProjectsProps) {
 											</div>
 										</article>
 									</li>
-								))}
+									);
+								})}
 							</ul>
 						)}
 					</div>

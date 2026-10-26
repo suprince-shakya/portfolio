@@ -74,7 +74,7 @@ export default function Hero({ profile }: HeroProps) {
 								width={160}
 								height={160}
 								priority
-								className="h-24 w-24 rounded-md border border-border object-cover grayscale md:h-40 md:w-40"
+								className="h-24 w-24 rounded-md border border-border object-cover md:h-40 md:w-40"
 							/>
 						) : (
 							<div className="flex h-24 w-24 items-center justify-center rounded-md border border-border bg-muted font-mono text-2xl text-muted-foreground md:h-40 md:w-40">
