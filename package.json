@@ -8,8 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "seed:admin": "node --env-file=.env.local scripts/seed-admin.mjs",
-    "seed:content": "node --env-file=.env.local scripts/seed-content.mjs"
+    "seed:admin": "node scripts/seed-admin.mjs",
+    "seed:content": "node scripts/seed-content.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.0.1",

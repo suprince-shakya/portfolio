@@ -1,10 +1,11 @@
+import './load-env.mjs';
 import { readFile } from 'node:fs/promises';
 import mongoose from 'mongoose';
 
 const uri = process.env.MONGODB_URI;
 
 if (!uri) {
-	console.error('MONGODB_URI is not set. Add it to .env.local.');
+	console.error('MONGODB_URI is not set. Add it to .env.local or the runtime environment.');
 	process.exit(1);
 }
 

@@ -7,5 +7,14 @@ services:
     volumes:
       - ./public:/app/public
     env_file:
-      - .env.local
+      - path: .env
+        required: false
+      - path: .env.local
+        required: false
     restart: on-failure
+    networks:
+      - shared-mongo-network
+
+networks:
+  shared-mongo-network:
+    external: true

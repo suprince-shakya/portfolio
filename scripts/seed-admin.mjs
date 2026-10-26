@@ -1,3 +1,4 @@
+import './load-env.mjs';
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
@@ -6,12 +7,12 @@ const email = process.env.ADMIN_EMAIL?.trim().toLowerCase();
 const password = process.env.ADMIN_PASSWORD;
 
 if (!uri) {
-	console.error('MONGODB_URI is not set. Add it to .env.local.');
+	console.error('MONGODB_URI is not set. Add it to .env.local or the runtime environment.');
 	process.exit(1);
 }
 
 if (!email || !password) {
-	console.error('ADMIN_EMAIL and ADMIN_PASSWORD must be set to create/update the admin user.');
+	console.error('ADMIN_EMAIL and ADMIN_PASSWORD must be set in .env.local or the runtime environment.');
 	process.exit(1);
 }
 
